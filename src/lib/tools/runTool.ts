@@ -21,15 +21,21 @@ export async function runTool(slug: string, input: string): Promise<string> {
     case 'youtube-channel-audit-checklist':
       return CHANNEL_AUDIT
     case 'youtube-channel-id-finder':
-      return `Paste a channel URL. Client extract:\n${extractYtId(trim)}\n\nFull channel ID lookup requires YouTube Data API via Edge Function.`
+      return youtubeApi('channel-id-finder', trim)
     case 'youtube-tag-extractor':
+      return youtubeApi('tag-extractor', trim)
     case 'youtube-thumbnail-previewer':
+      return youtubeThumbnail(trim)
     case 'youtube-region-restriction-checker':
+      return youtubeApi('region-restriction-checker', trim)
     case 'youtube-comment-picker':
+      return youtubeApi('comment-picker', trim)
     case 'youtube-live-subscriber-counter':
+      return youtubeApi('live-subscriber-counter', trim)
     case 'youtube-search-trend-analyzer':
+      return youtubeApi('search-trend-analyzer', trim)
     case 'youtube-metadata-viewer':
-      return apiHint(slug, trim, 'YouTube Data API (Edge Function)')
+      return youtubeApi('metadata-viewer', trim)
 
     // --- TikTok / Pinterest ---
     case 'tiktok-engagement-calculator':
@@ -242,6 +248,25 @@ export async function runTool(slug: string, input: string): Promise<string> {
     default:
       return `DevOptimizeBot · ${slug}\nReady.\nInput (${trim.length} chars) received.\nClient handler not specialized; use Edge Function if this tool needs live data.`
   }
+}
+
+
+async function youtubeApi(action: string, input: string) {
+  const response = await fetch('/api/youtube', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, input })
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok || !data.ok) throw new Error(data.error || `YouTube API request failed (${response.status})`)
+  return typeof data.result === 'string' ? data.result : JSON.stringify(data.result, null, 2)
+}
+
+function youtubeThumbnail(input: string) {
+  const id = extractYtId(input)
+  return `Max resolution: https://img.youtube.com/vi/${id}/maxresdefault.jpg
+HD: https://img.youtube.com/vi/${id}/hqdefault.jpg
+SD: https://img.youtube.com/vi/${id}/sddefault.jpg`
 }
 
 function apiHint(slug: string, input: string, api: string) {
