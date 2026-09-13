@@ -5,6 +5,7 @@ const functionsUrl = import.meta.env.VITE_SUPABASE_URL
   : ''
 
 export async function authWithTelegram(initData: string) {
+  if (!functionsUrl) return { error: 'Supabase is not configured.' }
   const res = await fetch(`${functionsUrl}/telegram-auth`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -14,6 +15,7 @@ export async function authWithTelegram(initData: string) {
 }
 
 export async function awardPoint(initData: string, monetagEventId?: string) {
+  if (!functionsUrl) return { error: 'Supabase is not configured.' }
   const res = await fetch(`${functionsUrl}/award-points`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -23,6 +25,7 @@ export async function awardPoint(initData: string, monetagEventId?: string) {
 }
 
 export async function fetchRewardHistory(userId: string) {
+  if (!supabase) return { data: null, error: new Error('Supabase is not configured.') }
   const { data, error } = await supabase
     .from('points_transactions')
     .select('id, amount, type, description, created_at')
