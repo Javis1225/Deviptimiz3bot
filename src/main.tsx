@@ -1,10 +1,21 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import App from './App'
+import { initTelegram } from './lib/telegram'
+import { loginWithTelegram } from './lib/session'
 import './index.css'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+// No-op outside Telegram (e.g. plain browser during development).
+initTelegram()
+// Best-effort: silently does nothing until Supabase + the telegram-auth
+// function are deployed. Profile.tsx re-checks the result via getMyPoints().
+loginWithTelegram()
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>,
 )

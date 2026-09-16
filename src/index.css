@@ -2,65 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --navy-900: #0a0f1c;
-  --navy-800: #0f172a;
-  --navy-700: #1e293b;
-  --accent: #facc15;
+@layer base {
+  html {
+    font-family: theme('fontFamily.sans');
+  }
+
+  h1, h2, h3 {
+    font-family: theme('fontFamily.display');
+  }
+
+  /* Visible keyboard focus everywhere, not just on inputs. */
+  :focus-visible {
+    outline: 2px solid theme('colors.accent.400');
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-* {
-  box-sizing: border-box;
-}
+@layer components {
+  .field {
+    @apply w-full rounded-lg border border-white/15 bg-navy-900 px-3 py-2 text-sm text-white placeholder-white/40 outline-none focus:border-accent-400;
+  }
 
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent-400 px-4 py-2 text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-300 disabled:cursor-not-allowed disabled:opacity-50;
+  }
 
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--navy-900);
-  color: #f1f5f9;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Telegram Mini App safe areas */
-.tg-safe-top {
-  padding-top: env(safe-area-inset-top);
-}
-.tg-safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #0f172a;
-}
-::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #475569;
-}
-
-/* Card hover */
-.tool-card {
-  transition: all 0.15s ease;
-}
-.tool-card:hover {
-  border-color: #facc15;
-  transform: translateY(-1px);
-}
-
-/* Focus rings */
-button:focus-visible, input:focus-visible, textarea:focus-visible {
-  outline: 2px solid #facc15;
-  outline-offset: 2px;
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-transparent px-4 py-2 text-sm font-medium text-white transition-colors hover:border-white/30 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50;
+  }
 }

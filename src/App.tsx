@@ -1,35 +1,27 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Home } from '@/pages/Home'
-import { ToolPage } from '@/pages/ToolPage'
-import { Profile } from '@/pages/Profile'
-import { AdminCatalogCheck } from '@/pages/AdminCatalogCheck'
+import { Route, Routes } from 'react-router-dom'
+import Layout from './components/Layout'
+import Home from './pages/Home'
+import ToolPage from './pages/ToolPage'
+import Profile from './pages/Profile'
+import AdminOverview from './pages/admin/AdminOverview'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminRewards from './pages/admin/AdminRewards'
+import AdminSettings from './pages/admin/AdminSettings'
+import CatalogCheck from './pages/admin/CatalogCheck'
 
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
+    <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/tool/:slug" element={<ToolPage />} />
+        <Route path="/tools/:slug" element={<ToolPage />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/admin/catalog-check" element={<AdminCatalogCheck />} />
-        {/* Static pages placeholders */}
-        <Route path="/privacy" element={<StaticPage title="Privacy Policy" />} />
-        <Route path="/terms" element={<StaticPage title="Terms of Service" />} />
-        <Route path="/disclaimer" element={<StaticPage title="Disclaimer" />} />
-        <Route path="/contact" element={<StaticPage title="Contact" />} />
+        <Route path="/admin" element={<AdminOverview />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/rewards" element={<AdminRewards />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
+        <Route path="/admin/catalog-check" element={<CatalogCheck />} />
       </Routes>
-    </BrowserRouter>
+    </Layout>
   )
 }
-
-function StaticPage({ title }: { title: string }) {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4">
-      <h1 className="text-xl font-semibold mb-2">{title}</h1>
-      <p className="text-sm text-slate-400 mb-4">DevOptimizeBot</p>
-      <a href="/" className="text-accent text-sm">← Back home</a>
-    </div>
-  )
-}
-
-export default App

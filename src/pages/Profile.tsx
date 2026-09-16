@@ -1,98 +1,75 @@
-import { Header } from '@/components/Header'
-import { Footer } from '@/components/Footer'
-import { useTelegram } from '@/hooks/useTelegram'
-import { awardPoint, authWithTelegram } from '@/lib/api'
-import { Gift } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { Gift, UserRound } from 'lucide-react'
+import { getTelegramUser } from '../lib/telegram'
+import { getMyPoints, claimAdReward, type PointsState } from '../lib/points'
+import { showRewardedAd } from '../lib/monetag'
 
-export function Profile() {
-  const { user, webApp } = useTelegram()
-  const [points, setPoints] = useState(0)
-  const [history, setHistory] = useState<string[]>([])
-  const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState('')
+export default function Profile() {
+  const telegramUser = getTelegramUser()
+  const [points, setPoints] = useState<PointsState>({ status: 'signed-out', balance: null })
+  const [adStatus, setAdStatus] = useState<string | null>(null)
+  const [loadingAd, setLoadingAd] = useState(false)
 
   useEffect(() => {
-    const initData = webApp?.initData
-    if (!initData) return
-    authWithTelegram(initData).then((res) => {
-      if (res.user?.points != null) setPoints(res.user.points)
-    }).catch(() => {})
-  }, [webApp])
+    getMyPoints().then(setPoints)
+  }, [])
 
-  const watchAd = async () => {
-    setBusy(true)
-    setMsg('')
-    try {
-      const initData = webApp?.initData || ''
-      // Production: show Monetag rewarded unit, then pass event id.
-      const res = await awardPoint(initData)
-      if (res.points != null) {
-        setPoints(res.points)
-        setHistory((h) => ['+1 DevOptimizeBot Point — Rewarded Ad', ...h])
-        setMsg(res.message || 'Point awarded')
-      } else {
-        setMsg(res.error || 'Could not award point (configure Supabase + Monetag)')
-      }
-    } catch (e: any) {
-      setMsg(e.message)
-    } finally {
-      setBusy(false)
+  async function handleWatchAd() {
+    setLoadingAd(true)
+    setAdStatus(null)
+    const watched = await showRewardedAd()
+    if (!watched) {
+      setAdStatus('Ad was closed before finishing \u2014 no reward this time.')
+      setLoadingAd(false)
+      return
     }
+    const result = await claimAdReward()
+    setAdStatus(result.message)
+    setLoadingAd(false)
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-
-      <main className="flex-1 max-w-lg mx-auto w-full px-4 py-8">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-navy-700 mx-auto flex items-center justify-center text-2xl font-bold text-accent">
-            {user?.first_name?.[0] || 'U'}
-          </div>
-          <h1 className="mt-3 text-lg font-semibold">
-            {user?.first_name} {user?.last_name}
-          </h1>
-          {user?.username && (
-            <p className="text-sm text-slate-400">@{user.username}</p>
-          )}
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center gap-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-navy-900">
+          <UserRound size={22} className="text-white/60" />
         </div>
-
-        <div className="rounded-xl border border-navy-600 bg-navy-800/60 p-5 mb-6">
-          <p className="text-sm text-slate-400">Current Points</p>
-          <p className="text-3xl font-bold text-accent mt-1">{points}</p>
-          <p className="text-xs text-slate-500 mt-1">DevOptimizeBot Points</p>
+        <div>
+          <p className="font-display text-lg font-semibold text-white">
+            {telegramUser ? `${telegramUser.first_name}${telegramUser.username ? ` (@${telegramUser.username})` : ''}` : 'Guest'}
+          </p>
+          <p className="text-xs text-white/50">
+            {telegramUser ? 'Signed in via Telegram' : 'Open inside Telegram to see your profile'}
+          </p>
         </div>
+      </div>
 
-        <button
-          onClick={watchAd}
-          disabled={busy}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent text-navy-900 font-semibold text-sm hover:bg-accent-hover transition-colors disabled:opacity-50"
-        >
-          <Gift className="w-4 h-4" />
-          🎁 Watch Ad +1 Point
+      <div className="rounded-card border border-white/10 bg-navy-900 p-5">
+        <p className="text-xs uppercase tracking-wide text-white/40">DevOptimizeBot Points</p>
+        <p className="mt-1 font-display text-3xl font-semibold text-accent-400">
+          {points.status === 'ready' ? points.balance : '—'}
+        </p>
+        {points.status !== 'ready' && (
+          <p className="mt-1 text-xs text-white/40">
+            {points.status === 'no-backend'
+              ? 'Connect Supabase to track points.'
+              : 'Sign-in isn\u2019t wired up yet \u2014 coming in the next build phase.'}
+          </p>
+        )}
+
+        <button type="button" onClick={handleWatchAd} disabled={loadingAd} className="btn-primary mt-4 w-full">
+          <Gift size={16} />
+          {loadingAd ? 'Loading ad…' : 'Watch Ad +1 Point'}
         </button>
-        {msg && <p className="text-xs text-slate-400 mt-2 text-center">{msg}</p>}
+        {adStatus && <p className="mt-2 text-xs text-white/50">{adStatus}</p>}
+      </div>
 
-        <div className="mt-8">
-          <h2 className="text-sm font-semibold text-slate-300 mb-3">Reward history</h2>
-          {history.length === 0 ? (
-            <div className="rounded-xl border border-navy-600 bg-navy-800/40 p-4 text-center text-sm text-slate-500">
-              No rewards yet. Watch an ad to earn your first DevOptimizeBot Point.
-            </div>
-          ) : (
-            <ul className="space-y-2">
-              {history.map((row, i) => (
-                <li key={i} className="rounded-lg border border-navy-600 bg-navy-800/60 px-3 py-2 text-sm text-slate-200">
-                  {row}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </main>
-
-      <Footer />
+      <div>
+        <p className="mb-2 text-sm font-medium text-white/80">Reward history</p>
+        <p className="rounded-card border border-white/10 bg-navy-900 p-4 text-xs text-white/40">
+          Your reward history will appear here once the backend is connected.
+        </p>
+      </div>
     </div>
   )
 }

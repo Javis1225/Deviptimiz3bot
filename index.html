@@ -2,17 +2,33 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="description" content="DevOptimizeBot — One workbench. Every tool you need. Fast browser tools for creators, bloggers, SEO, developers, text, design and calculations." />
-    <meta name="theme-color" content="#0a0f1c" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>DevOptimizeBot — One workbench. Every tool you need.</title>
+    <meta
+      name="description"
+      content="Fast browser tools for creators, bloggers, SEO, developers, text, design and calculations."
+    />
+    <meta name="theme-color" content="#060a19" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Official Telegram Mini Apps SDK, distributed as a script tag per Telegram's docs. -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!--
+      Monetag: paste the exact <script> snippet from your Monetag zone dashboard
+      here once you've created a Rewarded Interstitial zone. It will expose a
+      global show_<ZONE_ID> function — set VITE_MONETAG_SHOW_FN to that name.
+      See src/lib/monetag.ts and README.md.
+    -->
   </head>
-  <body class="bg-navy-900 text-white">
+  <body class="bg-navy-950 font-sans text-white antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
