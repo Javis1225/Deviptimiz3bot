@@ -15,8 +15,11 @@ function jsonToCsv(json: unknown): string {
   const lines = [headers.map(csvEscape).join(',')]
 
   for (const row of rows) {
-    const record = row && typeof row === 'object' ? (row as Record<string, unknown>) : { value: row }
-    lines.push(headers.map((h) => csvEscape(record[h])).join(','))
+    const record: Record<string, unknown> =
+      row && typeof row === 'object' && !Array.isArray(row)
+        ? (row as Record<string, unknown>)
+        : { value: row }
+    lines.push(headers.map((h) => csvEscape(record[h] ?? '')).join(','))
   }
   return lines.join('\n')
 }
